@@ -1,26 +1,25 @@
 name: Mirror docspace
 on:
   workflow_dispatch:
-  jobs:
-    mirror:
-        runs-on: ubuntu-latest
-            timeout-minutes: 120
-                steps:
-                      - name: Pull and save
-                              run: |
-                                        docker pull onlyoffice/docspace-server:latest
-                                                  mkdir -p out
-                                                            docker save onlyoffice/docspace-server:latest | gzip -1 > out/docspace.tar.gz
-                                                                  - name: Split into parts
-                                                                          run: |
-                                                                                    cd out
-                                                                                              split -b 1800M -d docspace.tar.gz docspace.part
-                                                                                                        rm -f docspace.tar.gz
-                                                                                                                  ls -la
-                                                                                                                        - name: Upload release
-                                                                                                                                env:
-                                                                                                                                          GH_TOKEN: ${{ github.token }}
-                                                                                                                                                  run: |
-                                                                                                                                                            cd out
-                                                                                                                                                                      gh release create v1 docspace.part* --title "onlyoffice/docspace-server" --notes "auto mirror" || true
-                                                                                                                                                                      
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Pull and save
+        run: |
+          docker pull onlyoffice/docspace-server:latest
+          mkdir -p out
+          docker save onlyoffice/docspace-server:latest | gzip -1 > out/docspace.tar.gz
+      - name: Split into parts
+        run: |
+          cd out
+          split -b 1800M -d docspace.tar.gz docspace.part
+          rm -f docspace.tar.gz
+          ls -la
+      - name: Upload release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd out
+          gh release create v1 docspace.part* --title "onlyoffice/docspace-server" --notes "auto mirror" || true
