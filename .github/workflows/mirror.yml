@@ -4,13 +4,14 @@ on:
 jobs:
   mirror:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 240
     steps:
       - name: Pull and save
         run: |
-          docker pull onlyoffice/docspace-server:latest
+          docker pull onlyoffice/docspace:latest
+          docker pull onlyoffice/opensearch:2.18.0
           mkdir -p out
-          docker save onlyoffice/docspace-server:latest | gzip -1 > out/docspace.tar.gz
+          docker save onlyoffice/docspace:latest onlyoffice/opensearch:2.18.0 | gzip -1 > out/docspace.tar.gz
       - name: Split into parts
         run: |
           cd out
@@ -21,5 +22,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          gh release delete v1 --yes --cleanup-tag || true
           cd out
-          gh release create v1 docspace.part* --title "onlyoffice/docspace-server" --notes "auto mirror" || true
+          gh release create v1 docspace.part* --title "onlyoffice/docspace+opensearch" --notes "auto mirror"
