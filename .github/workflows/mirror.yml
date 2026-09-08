@@ -5,6 +5,8 @@ jobs:
   mirror:
     runs-on: ubuntu-latest
     timeout-minutes: 240
+    permissions:
+      contents: write
     steps:
       - name: Pull and save
         run: |
@@ -22,6 +24,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release delete v1 --yes --cleanup-tag || true
           cd out
-          gh release create v1 docspace.part* --title "onlyoffice/docspace+opensearch" --notes "auto mirror"
+          gh release create v1 docspace.part* -R huanghuabing/docspace-mirror --title "docspace+opensearch" --notes "auto mirror"
